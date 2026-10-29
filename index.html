@@ -2,11 +2,9 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <!-- 가로 밀림 현상을 방지하는 모바일 전용 메타 태그 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>생산량 계산기 (모바일 전용)</title>
+    <title>생산량 계산기 (모바일 완벽 구동)</title>
     <style>
-        /* 화면이 우측으로 밀리지 않도록 전체 가로 크기를 제한하고 박스 모델 초기화 */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -21,7 +19,7 @@
             display: flex;
             justify-content: center;
             width: 100%;
-            overflow-x: hidden; /* 가로 스크롤 절대 발생 방지 */
+            overflow-x: hidden;
         }
 
         .wrapper {
@@ -29,7 +27,7 @@
             flex-direction: column;
             gap: 14px;
             width: 100%;
-            max-width: 100%; /* 화면 너비에 딱 맞춤 */
+            max-width: 100%;
         }
 
         .left-panel {
@@ -64,7 +62,6 @@
             border-left: 4px solid #4a90e2;
         }
 
-        /* 찌그러짐 없는 완벽한 50% 반반 분할 그리드 구조 */
         .form-grid {
             display: flex;
             flex-wrap: wrap;
@@ -73,7 +70,6 @@
             width: 100%;
         }
 
-        /* 좌우 정렬 아이템들이 무조건 화면의 반씩 차지하도록 고정 */
         .form-group {
             display: flex;
             flex-direction: column;
@@ -81,7 +77,6 @@
             min-width: calc(50% - 5px);
         }
 
-        /* 파지량 전용 (한 줄 다 차지) */
         .full-width {
             flex: 1 1 100%;
             min-width: 100%;
@@ -94,7 +89,6 @@
             color: #495057;
         }
 
-        /* 모바일 패딩 및 높이 최적화 */
         input {
             width: 100%;
             padding: 10px;
@@ -124,9 +118,9 @@
         }
 
         .btn-blue { background-color: #4a90e2; }
-        .btn-blue:active { background-color: #357abd; }
+        .btn-blue:opacity { opacity: 0.8; }
         .btn-green { background-color: #2ecc71; }
-        .btn-green:active { background-color: #27ae60; }
+        .btn-green:opacity { opacity: 0.8; }
         
         .result-display {
             margin-top: 10px;
@@ -167,20 +161,18 @@
             padding: 8px;
             font-size: 0.85rem;
         }
-        .clear-btn:active { background-color: #dee2e6; }
     </style>
 </head>
 <body>
 
 <div class="wrapper">
-    <!-- 계산 입력 구역 -->
     <div class="left-panel">
         
         <div class="card info-box">
             ⏰ <strong>총 작업:</strong> 12시간 (720분) | ☕ <strong>휴식:</strong> 공석 90분 / 석식 60분
         </div>
 
-        <!-- 공식 1 -->
+        <!-- 공식 1 구역 -->
         <div class="card">
             <h3 style="margin-top:0; color:#212529; font-size:1.05rem; margin-bottom:10px;">공식 1번 계산기 (기본형)</h3>
             <div class="form-grid">
@@ -201,11 +193,11 @@
                     <input type="number" id="total1" value="0" onfocus="this.select();">
                 </div>
             </div>
-            <button class="btn-blue" onclick="calc1()">공식1 계산하기</button>
+            <button type="button" class="btn-blue" id="mainRunBtn1">공식1 계산하기</button>
             <div class="result-display">결과: <span id="out1">0</span> 개</div>
         </div>
 
-        <!-- 공식 2 -->
+        <!-- 공식 2 구역 -->
         <div class="card">
             <h3 style="margin-top:0; color:#212529; font-size:1.05rem; margin-bottom:10px;">공식 2번 계산기 (+파지량)</h3>
             <div class="form-grid">
@@ -230,31 +222,50 @@
                     <input type="number" id="scrap2" value="0" onfocus="this.select();">
                 </div>
             </div>
-            <button class="btn-green" onclick="calc2()">공식2 계산하기</button>
+            <button type="button" class="btn-green" id="mainRunBtn2">공식2 계산하기</button>
             <div class="result-display">결과: <span id="out2">0</span> 개</div>
         </div>
 
     </div>
 
-    <!-- 기록 내역 구역 -->
     <div class="right-panel">
         <h3 style="margin-top:0; color:#212529; font-size:1rem; margin-bottom:10px;">📊 최근 생산 기록 (최대 10개)</h3>
         <ul id="logList" class="history-list">
             <li id="noLog" style="color:#868e96; text-align:center; padding:20px 0; font-size:0.85rem;">아직 기록이 없습니다.</li>
         </ul>
-        <button class="clear-btn" onclick="clearLogs()">기록 전체 삭제</button>
+        <button type="button" class="clear-btn" id="mainClearBtn">기록 전체 삭제</button>
     </div>
 </div>
 
 <script>
-    // 기존 기능 동일 유지
     var logs = [];
 
+    // 모바일 브라우저 전용 터치 및 클릭 이벤트 리스너 강제 바인딩 (먹통 완전 차단)
+    window.addEventListener('DOMContentLoaded', function() {
+        var btn1 = document.getElementById('mainRunBtn1');
+        var btn2 = document.getElementById('mainRunBtn2');
+        var btnClear = document.getElementById('mainClearBtn');
+
+        if(btn1) {
+            btn1.addEventListener('click', calc1);
+            btn1.addEventListener('touchstart', function(e) { e.preventDefault(); calc1(); }, {passive: false});
+        }
+        if(btn2) {
+            btn2.addEventListener('click', calc2);
+            btn2.addEventListener('touchstart', function(e) { e.preventDefault(); calc2(); }, {passive: false});
+        }
+        if(btnClear) {
+            btnClear.addEventListener('click', clearLogs);
+            btnClear.addEventListener('touchstart', function(e) { e.preventDefault(); clearLogs(); }, {passive: false});
+        }
+    });
+
     function calc1() {
-        var lh = parseFloat(document.getElementById('lh1').value) || 0;
-        var rh = parseFloat(document.getElementById('rh1').value) || 0;
-        var runner = parseFloat(document.getElementById('runner1').value) || 0;
-        var total = parseFloat(document.getElementById('total1').value) || 0;
+        // 모바일 간섭 차단을 위해 Number 변환 강화
+        var lh = Number(document.getElementById('lh1').value) || 0;
+        var rh = Number(document.getElementById('rh1').value) || 0;
+        var runner = Number(document.getElementById('runner1').value) || 0;
+        var total = Number(document.getElementById('total1').value) || 0;
 
         var sum = (lh + rh + runner) * total;
         document.getElementById('out1').innerHTML = sum.toLocaleString();
@@ -264,11 +275,11 @@
     }
 
     function calc2() {
-        var lh = parseFloat(document.getElementById('lh2').value) || 0;
-        var rh = parseFloat(document.getElementById('rh2').value) || 0;
-        var runner = parseFloat(document.getElementById('runner2').value) || 0;
-        var total = parseFloat(document.getElementById('total2').value) || 0;
-        var scrap = parseFloat(document.getElementById('scrap2').value) || 0;
+        var lh = Number(document.getElementById('lh2').value) || 0;
+        var rh = Number(document.getElementById('rh2').value) || 0;
+        var runner = Number(document.getElementById('runner2').value) || 0;
+        var total = Number(document.getElementById('total2').value) || 0;
+        var scrap = Number(document.getElementById('scrap2').value) || 0;
 
         var sum = ((lh + rh + runner) * total) + scrap;
         document.getElementById('out2').innerHTML = sum.toLocaleString();
@@ -284,23 +295,3 @@
         var d = new Date();
         var timeStr = d.toLocaleTimeString();
 
-        var newRecord = {
-            time: timeStr,
-            title: title,
-            formula: formula,
-            res: resultValue.toLocaleString() + " 개"
-        };
-
-        logs.unshift(newRecord);
-
-        if(logs.length > 10) {
-            logs.pop();
-        }
-
-        var logList = document.getElementById('logList');
-        logList.innerHTML = "";
-
-        for(var i = 0; i < logs.length; i++) {
-            var item = logs[i];
-            var li = document.createElement('li');
-            li.className = 'history-item';
