@@ -2,145 +2,170 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <!-- 모바일 화면 비율을 맞춰주는 필수 메타 태그 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>생산량 계산기</title>
+    <!-- 가로 밀림 현상을 방지하는 모바일 전용 메타 태그 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <title>생산량 계산기 (모바일 전용)</title>
     <style>
-        /* 모바일 퍼스트 및 가독성 중심 스타일 디자인 */
+        /* 화면이 우측으로 밀리지 않도록 전체 가로 크기를 제한하고 박스 모델 초기화 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #f1f3f5;
             color: #212529;
-            margin: 0;
             padding: 12px;
             display: flex;
             justify-content: center;
+            width: 100%;
+            overflow-x: hidden; /* 가로 스크롤 절대 발생 방지 */
         }
+
         .wrapper {
             display: flex;
-            flex-direction: column; /* 모바일에서 위아래로 흐르도록 설정 */
-            gap: 16px;
+            flex-direction: column;
+            gap: 14px;
             width: 100%;
-            max-width: 500px; /* 스마트폰 한 손 보기 최적화 크기 */
+            max-width: 100%; /* 화면 너비에 딱 맞춤 */
         }
+
         .left-panel {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
             width: 100%;
         }
+
         .right-panel {
             background: #ffffff;
             padding: 16px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            box-sizing: border-box;
             width: 100%;
         }
+
         .card {
             background: #ffffff;
-            padding: 20px;
+            padding: 16px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            box-sizing: border-box;
+            width: 100%;
         }
+
         .info-box {
             background-color: #e9ecef;
-            padding: 14px;
+            padding: 12px;
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             line-height: 1.5;
             border-left: 4px solid #4a90e2;
         }
+
+        /* 찌그러짐 없는 완벽한 50% 반반 분할 그리드 구조 */
         .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* 2열 배치 고정 */
-            gap: 12px;
-            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+            width: 100%;
         }
+
+        /* 좌우 정렬 아이템들이 무조건 화면의 반씩 차지하도록 고정 */
         .form-group {
             display: flex;
             flex-direction: column;
+            flex: 1 1 calc(50% - 5px);
+            min-width: calc(50% - 5px);
         }
+
+        /* 파지량 전용 (한 줄 다 차지) */
         .full-width {
-            grid-column: span 2;
+            flex: 1 1 100%;
+            min-width: 100%;
         }
+
         label {
-            margin-bottom: 6px;
+            margin-bottom: 5px;
             font-weight: bold;
             font-size: 0.85rem;
             color: #495057;
         }
-        /* 모바일 터치 오타 방지를 위해 입력창 높이와 폰트 확대 */
+
+        /* 모바일 패딩 및 높이 최적화 */
         input {
-            padding: 12px;
+            width: 100%;
+            padding: 10px;
             border: 1px solid #ced4da;
             border-radius: 6px;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             background-color: #fff;
-            -webkit-appearance: none; /* 아이폰 입력창 기본 음영 제거 */
-            box-sizing: border-box;
+            -webkit-appearance: none;
         }
+
         input:focus {
             border-color: #4a90e2;
             outline: none;
             background-color: #f8f9fa;
         }
-        /* 엄지손가락으로 누르기 편하게 버튼 크기 확대 */
+
         button {
             width: 100%;
-            padding: 15px;
+            padding: 14px;
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: bold;
             cursor: pointer;
-            box-sizing: border-box;
             transition: background-color 0.1s;
         }
+
         .btn-blue { background-color: #4a90e2; }
         .btn-blue:active { background-color: #357abd; }
         .btn-green { background-color: #2ecc71; }
         .btn-green:active { background-color: #27ae60; }
         
         .result-display {
-            margin-top: 12px;
-            padding: 12px;
+            margin-top: 10px;
+            padding: 10px;
             background-color: #f8f9fa;
             border-radius: 6px;
             text-align: right;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1rem;
             border: 1px solid #e9ecef;
         }
         .result-display span {
             color: #4a90e2;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
         }
+
         .history-list {
             list-style: none;
             padding: 0;
             margin: 0;
-            max-height: 300px; /* 모바일에서 스크롤로 보기 편하게 조절 */
+            max-height: 250px;
             overflow-y: auto;
         }
         .history-item {
-            padding: 12px 0;
+            padding: 10px 0;
             border-bottom: 1px solid #edf2f7;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         .history-time { color: #868e96; font-size: 0.75rem; }
-        .history-calc { color: #495057; margin: 4px 0; font-family: monospace; font-size: 0.95rem; }
-        .history-res { font-weight: bold; text-align: right; color: #4a90e2; font-size: 1.05rem; }
+        .history-calc { color: #495057; margin: 4px 0; font-family: monospace; font-size: 0.9rem; }
+        .history-res { font-weight: bold; text-align: right; color: #4a90e2; font-size: 1rem; }
         
         .clear-btn {
             background-color: #e9ecef;
             color: #495057;
-            margin-top: 15px;
+            margin-top: 12px;
             font-weight: normal;
-            padding: 10px;
-            font-size: 0.9rem;
+            padding: 8px;
+            font-size: 0.85rem;
         }
         .clear-btn:active { background-color: #dee2e6; }
     </style>
@@ -152,13 +177,12 @@
     <div class="left-panel">
         
         <div class="card info-box">
-            ⏰ <strong>총 작업:</strong> 12시간 (720분)<br>
-            ☕ <strong>휴식:</strong> 공석 90분 / 석식 60분
+            ⏰ <strong>총 작업:</strong> 12시간 (720분) | ☕ <strong>휴식:</strong> 공석 90분 / 석식 60분
         </div>
 
         <!-- 공식 1 -->
         <div class="card">
-            <h3 style="margin-top:0; color:#212529; font-size:1.15rem;">공식 1번 계산기 (기본형)</h3>
+            <h3 style="margin-top:0; color:#212529; font-size:1.05rem; margin-bottom:10px;">공식 1번 계산기 (기본형)</h3>
             <div class="form-grid">
                 <div class="form-group">
                     <label>LH</label>
@@ -183,7 +207,7 @@
 
         <!-- 공식 2 -->
         <div class="card">
-            <h3 style="margin-top:0; color:#212529; font-size:1.15rem;">공식 2번 계산기 (+파지량)</h3>
+            <h3 style="margin-top:0; color:#212529; font-size:1.05rem; margin-bottom:10px;">공식 2번 계산기 (+파지량)</h3>
             <div class="form-grid">
                 <div class="form-group">
                     <label>LH</label>
@@ -214,16 +238,16 @@
 
     <!-- 기록 내역 구역 -->
     <div class="right-panel">
-        <h3 style="margin-top:0; color:#212529; font-size:1.1rem;">📊 최근 생산 기록 (최대 10개)</h3>
+        <h3 style="margin-top:0; color:#212529; font-size:1rem; margin-bottom:10px;">📊 최근 생산 기록 (최대 10개)</h3>
         <ul id="logList" class="history-list">
-            <li id="noLog" style="color:#868e96; text-align:center; padding:30px 0; font-size:0.9rem;">아직 기록이 없습니다.</li>
+            <li id="noLog" style="color:#868e96; text-align:center; padding:20px 0; font-size:0.85rem;">아직 기록이 없습니다.</li>
         </ul>
         <button class="clear-btn" onclick="clearLogs()">기록 전체 삭제</button>
     </div>
 </div>
 
 <script>
-    // 기존 기능 100% 동일 유지 (로직 무수정)
+    // 기존 기능 동일 유지
     var logs = [];
 
     function calc1() {
@@ -280,6 +304,3 @@
             var item = logs[i];
             var li = document.createElement('li');
             li.className = 'history-item';
-            li.innerHTML = 
-                "<div class='history-time'>[" + item.title + "] " + item.time + "</div>" +
-                "<div class='history-calc'>" + item.formula + "</div>" +
