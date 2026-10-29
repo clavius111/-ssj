@@ -3,140 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>생산량 계산기 (모바일 완벽 구동)</title>
+    <title>생산량 계산기</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f1f3f5;
-            color: #212529;
+            font-family: sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
             padding: 12px;
             display: flex;
             justify-content: center;
             width: 100%;
-            overflow-x: hidden;
+            overflow-x: hidden; /* 우측으로 밀림 방지 */
         }
-
         .wrapper {
             display: flex;
-            flex-direction: column;
-            gap: 14px;
+            flex-direction: column; /* 세로 모드 최적화 */
+            gap: 15px;
             width: 100%;
             max-width: 100%;
         }
-
         .left-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
             width: 100%;
         }
-
         .right-panel {
-            background: #ffffff;
+            background: #fff;
             padding: 16px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            width: 100%;
-        }
-
-        .card {
-            background: #ffffff;
-            padding: 16px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            width: 100%;
-        }
-
-        .info-box {
-            background-color: #e9ecef;
-            padding: 12px;
             border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+        }
+        .card {
+            background: #fff;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .info-box {
+            background-color: #eef2f7;
+            padding: 12px;
+            border-radius: 6px;
             font-size: 0.85rem;
             line-height: 1.5;
-            border-left: 4px solid #4a90e2;
         }
-
+        /* 세로 모드에서 좌우 반반 정렬 */
         .form-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 14px;
+            margin-bottom: 15px;
             width: 100%;
         }
-
         .form-group {
             display: flex;
             flex-direction: column;
             flex: 1 1 calc(50% - 5px);
             min-width: calc(50% - 5px);
         }
-
         .full-width {
             flex: 1 1 100%;
             min-width: 100%;
         }
-
         label {
             margin-bottom: 5px;
             font-weight: bold;
             font-size: 0.85rem;
-            color: #495057;
         }
-
         input {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             font-size: 1.05rem;
-            background-color: #fff;
-            -webkit-appearance: none;
         }
-
-        input:focus {
-            border-color: #4a90e2;
-            outline: none;
-            background-color: #f8f9fa;
-        }
-
         button {
             width: 100%;
             padding: 14px;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 4px;
             font-size: 1.05rem;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.1s;
         }
-
         .btn-blue { background-color: #4a90e2; }
-        .btn-blue:opacity { opacity: 0.8; }
         .btn-green { background-color: #2ecc71; }
-        .btn-green:opacity { opacity: 0.8; }
-        
         .result-display {
             margin-top: 10px;
             padding: 10px;
             background-color: #f8f9fa;
-            border-radius: 6px;
+            border-radius: 4px;
             text-align: right;
             font-weight: bold;
             font-size: 1rem;
-            border: 1px solid #e9ecef;
         }
         .result-display span {
             color: #4a90e2;
             font-size: 1.3rem;
         }
-
         .history-list {
             list-style: none;
             padding: 0;
@@ -146,17 +116,16 @@
         }
         .history-item {
             padding: 10px 0;
-            border-bottom: 1px solid #edf2f7;
+            border-bottom: 1px solid #eee;
             font-size: 0.85rem;
         }
-        .history-time { color: #868e96; font-size: 0.75rem; }
-        .history-calc { color: #495057; margin: 4px 0; font-family: monospace; font-size: 0.9rem; }
+        .history-time { color: #999; font-size: 0.75rem; }
+        .history-calc { color: #666; margin: 3px 0; font-family: monospace; font-size: 0.9rem; }
         .history-res { font-weight: bold; text-align: right; color: #4a90e2; font-size: 1rem; }
-        
         .clear-btn {
-            background-color: #e9ecef;
-            color: #495057;
-            margin-top: 12px;
+            background-color: #e0e0e0;
+            color: #333;
+            margin-top: 15px;
             font-weight: normal;
             padding: 8px;
             font-size: 0.85rem;
@@ -169,12 +138,12 @@
     <div class="left-panel">
         
         <div class="card info-box">
-            ⏰ <strong>총 작업:</strong> 12시간 (720분) | ☕ <strong>휴식:</strong> 공석 90분 / 석식 60분
+            ⏰ <strong>총 작업 시간:</strong> 12시간 (720분) | ☕ <strong>휴식 시간:</strong> 공석 90분 / 석식 60분
         </div>
 
         <!-- 공식 1 구역 -->
         <div class="card">
-            <h3 style="margin-top:0; color:#212529; font-size:1.05rem; margin-bottom:10px;">공식 1번 계산기 (기본형)</h3>
+            <h3 style="margin-top:0; font-size:1.05rem; margin-bottom:10px;">공식 1번 계산기 (기본형)</h3>
             <div class="form-grid">
                 <div class="form-group">
                     <label>LH</label>
@@ -193,13 +162,14 @@
                     <input type="number" id="total1" value="0" onfocus="this.select();">
                 </div>
             </div>
-            <button type="button" class="btn-blue" id="mainRunBtn1">공식1 계산하기</button>
+            <!-- 아까 성공한 원본 함수 호출 방식으로 복구 -->
+            <button class="btn-blue" onclick="calc1()">공식1 계산하기</button>
             <div class="result-display">결과: <span id="out1">0</span> 개</div>
         </div>
 
         <!-- 공식 2 구역 -->
         <div class="card">
-            <h3 style="margin-top:0; color:#212529; font-size:1.05rem; margin-bottom:10px;">공식 2번 계산기 (+파지량)</h3>
+            <h3 style="margin-top:0; font-size:1.05rem; margin-bottom:10px;">공식 2번 계산기 (+파지량 반영)</h3>
             <div class="form-grid">
                 <div class="form-group">
                     <label>LH</label>
@@ -222,52 +192,35 @@
                     <input type="number" id="scrap2" value="0" onfocus="this.select();">
                 </div>
             </div>
-            <button type="button" class="btn-green" id="mainRunBtn2">공식2 계산하기</button>
+            <!-- 아까 성공한 원본 함수 호출 방식으로 복구 -->
+            <button class="btn-green" onclick="calc2()">공식2 계산하기</button>
             <div class="result-display">결과: <span id="out2">0</span> 개</div>
         </div>
 
     </div>
 
+    <!-- 오른쪽 기록판 -->
     <div class="right-panel">
-        <h3 style="margin-top:0; color:#212529; font-size:1rem; margin-bottom:10px;">📊 최근 생산 기록 (최대 10개)</h3>
+        <h3 style="margin-top:0; font-size:1rem; margin-bottom:10px;">📊 최근 생산 기록 (최대 10개)</h3>
         <ul id="logList" class="history-list">
-            <li id="noLog" style="color:#868e96; text-align:center; padding:20px 0; font-size:0.85rem;">아직 기록이 없습니다.</li>
+            <li id="noLog" style="color:#999; text-align:center; padding:30px 0; font-size:0.85rem;">아직 기록이 없습니다.</li>
         </ul>
-        <button type="button" class="clear-btn" id="mainClearBtn">기록 전체 삭제</button>
+        <button class="clear-btn" onclick="clearLogs()">기록 전체 삭제</button>
     </div>
 </div>
 
 <script>
+    // 아까 성공했던 원본 연산 엔진 100% 동일 복구
     var logs = [];
 
-    // 모바일 브라우저 전용 터치 및 클릭 이벤트 리스너 강제 바인딩 (먹통 완전 차단)
-    window.addEventListener('DOMContentLoaded', function() {
-        var btn1 = document.getElementById('mainRunBtn1');
-        var btn2 = document.getElementById('mainRunBtn2');
-        var btnClear = document.getElementById('mainClearBtn');
-
-        if(btn1) {
-            btn1.addEventListener('click', calc1);
-            btn1.addEventListener('touchstart', function(e) { e.preventDefault(); calc1(); }, {passive: false});
-        }
-        if(btn2) {
-            btn2.addEventListener('click', calc2);
-            btn2.addEventListener('touchstart', function(e) { e.preventDefault(); calc2(); }, {passive: false});
-        }
-        if(btnClear) {
-            btnClear.addEventListener('click', clearLogs);
-            btnClear.addEventListener('touchstart', function(e) { e.preventDefault(); clearLogs(); }, {passive: false});
-        }
-    });
-
     function calc1() {
-        // 모바일 간섭 차단을 위해 Number 변환 강화
-        var lh = Number(document.getElementById('lh1').value) || 0;
-        var rh = Number(document.getElementById('rh1').value) || 0;
-        var runner = Number(document.getElementById('runner1').value) || 0;
-        var total = Number(document.getElementById('total1').value) || 0;
+        var lh = parseFloat(document.getElementById('lh1').value) || 0;
+        var rh = parseFloat(document.getElementById('rh1').value) || 0;
+        var runner = parseFloat(document.getElementById('runner1').value) || 0;
+        var total = parseFloat(document.getElementById('total1').value) || 0;
 
         var sum = (lh + rh + runner) * total;
+
         document.getElementById('out1').innerHTML = sum.toLocaleString();
 
         var formula = "(" + lh + " + " + rh + " + " + runner + ") × " + total;
@@ -275,13 +228,14 @@
     }
 
     function calc2() {
-        var lh = Number(document.getElementById('lh2').value) || 0;
-        var rh = Number(document.getElementById('rh2').value) || 0;
-        var runner = Number(document.getElementById('runner2').value) || 0;
-        var total = Number(document.getElementById('total2').value) || 0;
-        var scrap = Number(document.getElementById('scrap2').value) || 0;
+        var lh = parseFloat(document.getElementById('lh2').value) || 0;
+        var rh = parseFloat(document.getElementById('rh2').value) || 0;
+        var runner = parseFloat(document.getElementById('runner2').value) || 0;
+        var total = parseFloat(document.getElementById('total2').value) || 0;
+        var scrap = parseFloat(document.getElementById('scrap2').value) || 0;
 
         var sum = ((lh + rh + runner) * total) + scrap;
+
         document.getElementById('out2').innerHTML = sum.toLocaleString();
 
         var formula = "((" + lh + " + " + rh + " + " + runner + ") × " + total + ") + " + scrap;
@@ -295,3 +249,43 @@
         var d = new Date();
         var timeStr = d.toLocaleTimeString();
 
+        var newRecord = {
+            time: timeStr,
+            title: title,
+            formula: formula,
+            res: resultValue.toLocaleString() + " 개"
+        };
+
+        logs.unshift(newRecord);
+
+        if(logs.length > 10) {
+            logs.pop();
+        }
+
+        var logList = document.getElementById('logList');
+        logList.innerHTML = "";
+
+        for(var i = 0; i < logs.length; i++) {
+            var item = logs[i];
+            var li = document.createElement('li');
+            li.className = 'history-item';
+            li.innerHTML = 
+                "<div class='history-time'>[" + item.title + "] " + item.time + "</div>" +
+                "<div class='history-calc'>" + item.formula + "</div>" +
+                "<div class='history-res'>결과: " + item.res + "</div>";
+            logList.appendChild(li);
+        }
+    }
+
+    function clearLogs() {
+        if(confirm("기록을 모두 지우시겠습니까?")) {
+            logs = [];
+            document.getElementById('logList').innerHTML = '<li id="noLog" style="color:#999; text-align:center; padding:30px 0; font-size:0.85rem;">아직 기록이 없습니다.</li>';
+            document.getElementById('out1').innerHTML = "0";
+            document.getElementById('out2').innerHTML = "0";
+        }
+    }
+</script>
+
+</body>
+</html>
